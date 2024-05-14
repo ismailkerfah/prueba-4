@@ -1,11 +1,185 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ismail kerfah</title>
+    <title>Buscador de aparacamentos en vías púplicas</title>
+    <style>
+        body {
+            background-color: #98F5F9; /* Color de fondo verde claro */
+            margin: 0;
+            padding: 0;
+        }
+
+        #container {
+            text-align: center;
+        }
+        
+        #locationsListContainer {
+            max-width: 600px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        #locationsList {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        #locationsList li {
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+            cursor: pointer;
+            background-color: #f5f5f5; /* Color de fondo */
+        }
+
+        #locationsList li.match {
+            background-color: yellow; /* Cambiar color de fondo para resaltar coincidencias */
+        }
+
+        #locationsList li:hover {
+            background-color: orange; /* Cambio de color al pasar el ratón */
+        }
+
+        #locationsList li:last-child {
+            border-bottom: none;
+        }
+
+        #searchSiteBtn {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        #searchInput {
+            width: 60%;
+            padding: 5px;
+            border: 4px solid #ccc;
+            border-radius: 9px;
+        }
+
+        #searchResultsContainer {
+            max-width: 600px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        h1 {
+            font-family: 'Arial', sans-serif; /* Cambiar la fuente */
+            color: #333; /* Color del texto */
+        }
+    </style>
 </head>
 <body>
-ismail kerfah    
+    <div id="container">
+        <h1>Buscador de aparacamentos en vías púplicas</h1>
+        <button id="getLocationBtn">Avisar de sitio vacío</button>
+        <div id="locationsListContainer">
+            <ul id="locationsList"></ul>
+        </div>
+        <input type="text" id="searchInput" placeholder="Buscar ubicación">
+        <button id="searchSiteBtn">Buscar sitio</button>
+        <div id="searchResultsContainer"></div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const getLocationBtn = document.getElementById("getLocationBtn");
+            const searchSiteBtn = document.getElementById("searchSiteBtn");
+            const searchInput = document.getElementById("searchInput");
+            const locationsList = document.getElementById("locationsList");
+            const searchResultsContainer = document.getElementById("searchResultsContainer");
+
+            getLocationBtn.addEventListener("click", function() {
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(addLocationToList);
+                } else {
+                    alert("Geolocalización no es soportada por tu navegador.");
+                }
+            });
+
+            searchSiteBtn.addEventListener("click", function() {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                const items = locationsList.getElementsByTagName("li");
+                const results = [];
+                for (let item of items) {
+                    const address = item.textContent.trim().toLowerCase();
+                    if (address.includes(searchTerm)) {
+                        results.push(item.textContent);
+                    }
+                }
+                displaySearchResults(results);
+            });
+
+            function addLocationToList(position) {
+                const latitude = position.coords.latitude;
+                const longitude = position.coords.longitude;
+                const date = new Date();
+                const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+                
+                // Obtener la dirección correspondiente a las coordenadas
+                getAddressFromCoordinates(latitude, longitude)
+                    .then(address => {
+                        const listItem = document.createElement("li");
+                        listItem.textContent = `${address} - Hora: ${time}`; // Agregar la hora al contenido del elemento li
+                        listItem.setAttribute("data-lat", latitude);
+                        listItem.setAttribute("data-lng", longitude);
+                        locationsList.appendChild(listItem);
+                        listItem.addEventListener("click", function() {
+                            const lat = this.getAttribute("data-lat");
+                            const lng = this.getAttribute("data-lng");
+                            openGoogleMaps(lat, lng);
+                        });
+                        setTimeout(function() {
+                            locationsList.removeChild(listItem);
+                        }, 120000); // Eliminar después de 2 minutos (120,000 milisegundos)
+                    })
+                    .catch(error => {
+                        console.error("Error al obtener la dirección:", error);
+                    });
+            }
+
+            async function getAddressFromCoordinates(latitude, longitude) {
+                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=18&addressdetails=1`);
+                const data = await response.json();
+                const address = data.display_name;
+                return address;
+            }
+
+            function openGoogleMaps(latitude, longitude) {
+                const url = `https://www.google.com/maps?q=${latitude},${longitude}`;
+                window.open(url, "_blank");
+            }
+
+            function displaySearchResults(results) {
+                searchResultsContainer.innerHTML = "";
+                if (results.length === 0) {
+                    searchResultsContainer.textContent = "No se encontraron resultados.";
+                } else {
+                    const ul = document.createElement("ul");
+                    results.forEach(result => {
+                        const li = document.createElement("li");
+                        li.textContent = result;
+                        li.addEventListener("click", function() {
+                            const address = this.textContent.split(" - ")[0];
+                            const coords = this.textContent.split(" - ")[1];
+                            const lat = parseFloat(coords.split(":")[1]);
+                            const lng = parseFloat(coords.split(":")[2]);
+                            openGoogleMaps(lat, lng);
+                        });
+                        ul.appendChild(li);
+                    });
+                    searchResultsContainer.appendChild(ul);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
