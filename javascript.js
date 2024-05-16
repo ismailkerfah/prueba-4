@@ -3,9 +3,10 @@ var firebaseConfig = {
     apiKey: "TU_API_KEY",
     authDomain: "prueba-5.firebaseapp.com",
     projectId: "prueba-5-2aaab",
-    storageBucket: "TU_STORAGE_BUCKET",
+    storageBucket: "prueba-5-2aaab.appspot.com",
     messagingSenderId: "410823361768",
     appId: "TU_APP_ID"
+};
 };
 // Inicializar Firebase
 firebase.initializeApp(firebaseConfig);
