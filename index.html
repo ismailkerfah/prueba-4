@@ -1,16 +1,116 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Compartir Ubicación</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>App de Ubicación</title>
+<style>
+    /* Estilos CSS básicos */
+    .hidden {
+        display: none;
+    }
+</style>
 </head>
 <body>
-    <h1>Compartir Ubicación</h1>
-    <button id="indicar" onclick="mostrarUbicacion()">Indicar Ubicación</button>
-    <ul id="lista-ubicaciones"></ul>
 
-    <script src="script.js"></script>
+<!-- Página Principal -->
+<div id="paginaPrincipal">
+    <button id="btnBuscarSitio">Buscar sitio</button>
+    <button id="btnIndicarSitio">Indicar sitio</button>
+</div>
+
+<!-- Contenido para Buscar Sitio -->
+<div id="contenidoBuscarSitio" class="hidden">
+    <!-- Contenido que aparece al hacer clic en "Buscar sitio" -->
+    <input type="text" id="inputBusqueda" placeholder="Buscar ubicación...">
+    <ul id="listaUbicacionesBusqueda"></ul>
+    <button id="btnVolverBuscar">Volver</button>
+</div>
+
+<!-- Contenido para Indicar Sitio -->
+<div id="contenidoIndicarSitio" class="hidden">
+    <button id="btnIndicar">Indicar</button>
+    <button id="btnVolverIndicar">Volver</button>
+    <ul id="listaDirecciones"></ul>
+</div>
+
+<script>
+    var ubicacionesDisponibles = [];
+
+    // Función para mostrar el contenido de Buscar Sitio y ocultar la Página Principal
+    document.getElementById("btnBuscarSitio").addEventListener("click", function() {
+        document.getElementById("paginaPrincipal").classList.add("hidden");
+        document.getElementById("contenidoBuscarSitio").classList.remove("hidden");
+    });
+
+    // Función para volver a la Página Principal desde el contenido de Buscar Sitio
+    document.getElementById("btnVolverBuscar").addEventListener("click", function() {
+        document.getElementById("contenidoBuscarSitio").classList.add("hidden");
+        document.getElementById("paginaPrincipal").classList.remove("hidden");
+    });
+
+    // Función para mostrar el contenido de Indicar Sitio y ocultar la Página Principal
+    document.getElementById("btnIndicarSitio").addEventListener("click", function() {
+        document.getElementById("paginaPrincipal").classList.add("hidden");
+        document.getElementById("contenidoIndicarSitio").classList.remove("hidden");
+    });
+
+    // Función para volver a la Página Principal desde el contenido de Indicar Sitio
+    document.getElementById("btnVolverIndicar").addEventListener("click", function() {
+        document.getElementById("contenidoIndicarSitio").classList.add("hidden");
+        document.getElementById("paginaPrincipal").classList.remove("hidden");
+    });
+
+    // Función para obtener la ubicación del usuario y mostrarla en la lista
+    document.getElementById("btnIndicar").addEventListener("click", function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                var latitude = position.coords.latitude;
+                var longitude = position.coords.longitude;
+                var ubicacion = { latitude: latitude, longitude: longitude };
+                ubicacionesDisponibles.push(ubicacion);
+                
+                var listaDirecciones = document.getElementById("listaDirecciones");
+                var nuevaDireccion = document.createElement("li");
+                nuevaDireccion.textContent = "Latitud: " + latitude + ", Longitud: " + longitude;
+                nuevaDireccion.setAttribute("data-latitud", latitude);
+                nuevaDireccion.setAttribute("data-longitud", longitude);
+                listaDirecciones.appendChild(nuevaDireccion);
+            });
+        } else {
+            alert("Geolocalización no soportada en este navegador.");
+        }
+    });
+
+    // Función para filtrar la lista de ubicaciones según la entrada del usuario
+    document.getElementById("inputBusqueda").addEventListener("input", function() {
+        var input = this.value.trim().toLowerCase();
+        var listaUbicacionesBusqueda = document.getElementById("listaUbicacionesBusqueda");
+        listaUbicacionesBusqueda.innerHTML = '';
+
+        ubicacionesDisponibles.forEach(function(ubicacion) {
+            var latitud = ubicacion.latitude;
+            var longitud = ubicacion.longitude;
+            var address = "Latitud: " + latitud + ", Longitud: " + longitud;
+
+            if (address.toLowerCase().includes(input)) {
+                var nuevaUbicacion = document.createElement("li");
+                nuevaUbicacion.textContent = address;
+                nuevaUbicacion.setAttribute("data-latitud", latitud);
+                nuevaUbicacion.setAttribute("data-longitud", longitud);
+                listaUbicacionesBusqueda.appendChild(nuevaUbicacion);
+            }
+        });
+    });
+
+    // Al hacer clic en una ubicación encontrada en la búsqueda, llenar el cuadro de búsqueda en el contenido "Buscar sitio" con la ubicación seleccionada
+    document.getElementById("listaUbicacionesBusqueda").addEventListener("click", function(event) {
+        var target = event.target;
+        var latitud = target.getAttribute("data-latitud");
+        var longitud = target.getAttribute("data-longitud");
+        document.getElementById("inputBusqueda").value = "Latitud: " + latitud + ", Longitud: " + longitud;
+    });
+</script>
+
 </body>
 </html>
