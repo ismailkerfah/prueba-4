@@ -1,32 +1,26 @@
-// Al cargar la página, intenta cargar las ubicaciones guardadas
-window.addEventListener("load", function() {
-    var storedLocations = JSON.parse(localStorage.getItem("ubicacionesDisponibles"));
-    if (storedLocations) {
-        ubicacionesDisponibles = storedLocations;
-        mostrarUbicacionesGuardadas();
-    }
-});
+function mostrarUbicacion() {
+    if ("geolocation" in navigator) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            var lat = position.coords.latitude;
+            var lon = position.coords.longitude;
+            var ubicacion = "Latitud: " + lat + ", Longitud: " + lon;
 
-// Función para mostrar las ubicaciones guardadas
-function mostrarUbicacionesGuardadas() {
-    if (typeof(Storage) !== "undefined") {
-        var storedLocations = JSON.parse(localStorage.getItem("ubicacionesDisponibles"));
-        if (storedLocations) {
-            ubicacionesDisponibles = storedLocations;
-            var listaDirecciones = document.getElementById("listaDirecciones");
-            listaDirecciones.innerHTML = '';
-            ubicacionesDisponibles.forEach(function(ubicacion) {
-                var latitud = ubicacion.latitude;
-                var longitud = ubicacion.longitude;
-                var nuevaDireccion = document.createElement("li");
-                nuevaDireccion.textContent = "Latitud: " + latitud + ", Longitud: " + longitud;
-                nuevaDireccion.setAttribute("data-latitud", latitud);
-                nuevaDireccion.setAttribute("data-longitud", longitud);
-                listaDirecciones.appendChild(nuevaDireccion);
-            });
-        }
+            guardarUbicacion(ubicacion);
+            mostrarLista();
+        });
     } else {
-        console.log("El navegador no soporta localStorage.");
+        alert("La geolocalización no está disponible en este navegador.");
     }
 }
 
+function guardarUbicacion(ubicacion) {
+    var lista = document.getElementById("lista-ubicaciones");
+    var nuevaUbicacion = document.createElement("li");
+    nuevaUbicacion.textContent = ubicacion;
+    lista.appendChild(nuevaUbicacion);
+}
+
+function mostrarLista() {
+    var lista = document.getElementById("lista-ubicaciones");
+    lista.style.display = "block";
+}
