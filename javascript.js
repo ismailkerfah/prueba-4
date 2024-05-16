@@ -1,10 +1,10 @@
 // Initialize Firebase
 var firebaseConfig = {
     apiKey: "TU_API_KEY",
-    authDomain: "TU_AUTH_DOMAIN",
-    projectId: "TU_PROJECT_ID",
+    authDomain: "prueba-5.firebaseapp.com",
+    projectId: "prueba-5-2aaab",
     storageBucket: "TU_STORAGE_BUCKET",
-    messagingSenderId: "TU_MESSAGING_SENDER_ID",
+    messagingSenderId: "410823361768",
     appId: "TU_APP_ID"
 };
 // Inicializar Firebase
