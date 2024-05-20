@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "410823361768",
+    "project_id": "prueba-5-2aaab",
+    "storage_bucket": "prueba-5-2aaab.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:410823361768:android:d5eb642483379bbd30355d",
+        "android_client_info": {
+          "package_name": "aparco1.sitio2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhELI7sH-N46iYADK0LPvpWL4B0leJoyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
