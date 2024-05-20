@@ -14,7 +14,7 @@
 <body>
 
 <!-- Página Principal -->
-<div id="paginaPrincipal"></div>
+<div id="paginaPrincipal">
     <button id="btnBuscarSitio">Buscar sitio</button>
     <button id="btnIndicarSitio">Indicar sitio</button>
 </div>
@@ -34,14 +34,37 @@
     <ul id="listaDirecciones"></ul>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database.js"></script>
+
 <script>
     var ubicacionesDisponibles = [];
 
-    // Obtener ubicaciones almacenadas en localStorage al cargar la página
-    if (localStorage.getItem('ubicacionesDisponibles')) {
-        ubicacionesDisponibles = JSON.parse(localStorage.getItem('ubicacionesDisponibles'));
+    // Configura Firebase
+    var firebaseConfig = {
+        apiKey: "AIzaSyBhELI7sH-N46iYADK0LPvpWL4B0leJoyk",
+        authDomain: "prueba-5-2aaab.firebaseapp.com",
+        databaseURL: "https://prueba-5-2aaab-default-rtdb.firebaseio.com",
+        projectId: "prueba-5-2aaab",
+        storageBucket: "prueba-5-2aaab.appspot.com",
+        messagingSenderId: "410823361768",
+        appId: "1:410823361768:web:d5eb642483379bbd30355d"
+    };
+
+    // Inicializa Firebase
+    firebase.initializeApp(firebaseConfig);
+    var database = firebase.database();
+
+    // Obtener ubicaciones almacenadas en Firebase al cargar la página
+    database.ref('ubicaciones').on('value', function(snapshot) {
+        ubicacionesDisponibles = [];
+        snapshot.forEach(function(childSnapshot) {
+            var ubicacion = childSnapshot.val();
+            ubicacionesDisponibles.push(ubicacion);
+        });
         mostrarUbicacionesGuardadas();
-    }
+    });
 
     // Función para mostrar las ubicaciones almacenadas
     function mostrarUbicacionesGuardadas() {
@@ -57,9 +80,9 @@
         });
     }
 
-    // Función para guardar las ubicaciones en localStorage
-    function guardarUbicacionesEnLocalStorage() {
-        localStorage.setItem('ubicacionesDisponibles', JSON.stringify(ubicacionesDisponibles));
+    // Función para guardar las ubicaciones en Firebase
+    function guardarUbicacionEnFirebase(ubicacion) {
+        database.ref('ubicaciones').push(ubicacion);
     }
 
     // Función para mostrar el contenido de Buscar Sitio y ocultar la Página Principal
@@ -98,9 +121,8 @@
                     .then(response => response.json())
                     .then(data => {
                         var address = data.display_name; // Obtener el nombre de la dirección
-                        ubicacionesDisponibles.push({ address: address, latitude: latitude, longitude: longitude });
-                        guardarUbicacionesEnLocalStorage(); // Guardar en localStorage
-                        mostrarUbicacionesGuardadas(); // Mostrar la ubicación en la lista
+                        var ubicacion = { address: address, latitude: latitude, longitude: longitude };
+                        guardarUbicacionEnFirebase(ubicacion); // Guardar en Firebase
                     })
                     .catch(error => {
                         console.error('Error al obtener la dirección:', error);
