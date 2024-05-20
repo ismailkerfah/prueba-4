@@ -37,6 +37,31 @@
 <script>
     var ubicacionesDisponibles = [];
 
+    // Obtener ubicaciones almacenadas en localStorage al cargar la página
+    if (localStorage.getItem('ubicacionesDisponibles')) {
+        ubicacionesDisponibles = JSON.parse(localStorage.getItem('ubicacionesDisponibles'));
+        mostrarUbicacionesGuardadas();
+    }
+
+    // Función para mostrar las ubicaciones almacenadas
+    function mostrarUbicacionesGuardadas() {
+        var listaDirecciones = document.getElementById("listaDirecciones");
+        listaDirecciones.innerHTML = '';
+
+        ubicacionesDisponibles.forEach(function(ubicacion) {
+            var nuevaDireccion = document.createElement("li");
+            nuevaDireccion.textContent = ubicacion.address;
+            nuevaDireccion.setAttribute("data-latitud", ubicacion.latitude);
+            nuevaDireccion.setAttribute("data-longitud", ubicacion.longitude);
+            listaDirecciones.appendChild(nuevaDireccion);
+        });
+    }
+
+    // Función para guardar las ubicaciones en localStorage
+    function guardarUbicacionesEnLocalStorage() {
+        localStorage.setItem('ubicacionesDisponibles', JSON.stringify(ubicacionesDisponibles));
+    }
+
     // Función para mostrar el contenido de Buscar Sitio y ocultar la Página Principal
     document.getElementById("btnBuscarSitio").addEventListener("click", function() {
         document.getElementById("paginaPrincipal").classList.add("hidden");
@@ -74,13 +99,8 @@
                     .then(data => {
                         var address = data.display_name; // Obtener el nombre de la dirección
                         ubicacionesDisponibles.push({ address: address, latitude: latitude, longitude: longitude });
-                        
-                        var listaDirecciones = document.getElementById("listaDirecciones");
-                        var nuevaDireccion = document.createElement("li");
-                        nuevaDireccion.textContent = address;
-                        nuevaDireccion.setAttribute("data-latitud", latitude);
-                        nuevaDireccion.setAttribute("data-longitud", longitude);
-                        listaDirecciones.appendChild(nuevaDireccion);
+                        guardarUbicacionesEnLocalStorage(); // Guardar en localStorage
+                        mostrarUbicacionesGuardadas(); // Mostrar la ubicación en la lista
                     })
                     .catch(error => {
                         console.error('Error al obtener la dirección:', error);
